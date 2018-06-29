@@ -1,0 +1,372 @@
+#+TITLE: RN4020 を使った beacon 作成メモ
+#+AUTHOR: Yoshinari Nomura
+#+EMAIL:
+#+DATE:
+#+OPTIONS: H:3 num:2 toc:nil
+#+OPTIONS: ^:nil @:t \n:nil ::t |:t f:t TeX:t
+#+OPTIONS: skip:nil
+#+OPTIONS: author:t
+#+OPTIONS: email:nil
+#+OPTIONS: creator:nil
+#+OPTIONS: timestamp:nil
+#+OPTIONS: timestamps:nil
+#+OPTIONS: d:nil
+#+OPTIONS: tags:t
+#+TEXT:
+#+DESCRIPTION:
+#+KEYWORDS:
+#+LANGUAGE: ja
+#+LATEX_CLASS: jsarticle
+#+LATEX_CLASS_OPTIONS: [a4j,dvipdfmx]
+# #+LATEX_HEADER: \usepackage{plain-article}
+# #+LATEX_HEADER: \renewcommand\maketitle{}
+# #+LATEX_HEADER: \pagestyle{empty}
+# #+LaTeX: \thispagestyle{empty}
+
+* 部品の選定
+** RN4020 ← これを選定
+   + 秋月で買える ( [[http://akizukidenshi.com/catalog/g/gM-10066/][RN4020-V/RM123]] ) 1,000円ぐらい
+   + MCU なしでも簡単な回路でセンサと連携できそう
+   + 価格と入手性がいい
+
+** konashi/koshian
+   + [[https://www.ux-xu.com/product/konashi][konashi | ユカイ工学]]
+   + [[http://eleshop.jp/shop/g/gFAE311/][共立でも買える]]
+   + コネクタは Hirose Electric Co Ltd DF40C-20DP-0.4V
+   雑感
+   + 共立には，koshian がない?
+   + スイッチサイエンスには，koshian がない?
+   + マクニカの拡張ボードにはピンヘッダが実装されてて面倒そう
+   + 秋月には konashi のみ?
+   + konashi で開発して koshian (安価) を実機に載せるのは便利そう
+   + 高機能過ぎて消費電力が大きそうなのが問題
+     →  [[https://www.hirotakaster.com/technology/koshian-wiced-%25E3%2581%25A7%25E9%2596%258B%25E7%2599%25BA/][Koshian & WICED で開発]] ならばOK?
+
+* Beacon って何?
+** iBeacon (Apple)
+*** 導入や製品情報
+    + [[https://www.slideshare.net/fumisato/googleeddystone][Googleのオープンなビーコン規格「Eddystone」とはなんなのか？]]
+      + いいスライド．iBeacon の事も書いてある．ホントは，Eddystone が面白いのだが，
+        RN4020 は，ファームウェア書換えなきゃいけない(Windowsが必要)のが面倒．
+    + [[http://www.aplix.co.jp/product/mybeacon/][MyBeacon®シリーズ｜株式会社アプリックス]]
+
+*** iBeacon のフォーマット
+    + [[https://support.kontakt.io/hc/en-gb/articles/201492492-iBeacon-advertising-packet-structure][iBeacon advertising packet structure]]
+      + 9 bytes iBeacon prefix
+        + 前5バイトは RN4020 ではいじれない．([[https://www.microchip.com/forums/m909686.aspx][RN4020 Eddystone]])
+        + 後ろ4バイトを 4C 00 02 15 とすると，iBeacon
+      + 16 byte UUID
+      + 2 bytes Major
+      + 2 bytes Minor
+      + 1 byte TX power
+
+      : 4C 00 02 15 (16bytes UUID) (2bytes Major) (2bytes Minor) (1byte Power)
+      : 4 + 16 + 2 + 2 + 1 = 25
+
+      + 例 :: 4C000215 467FD32695D242F2BBBC5C8F4610B120 0001 0002 C0
+
+    + Major, Minor, TX power を適当に(センサの値などに応じて)変えて送ることで，
+      ビーコンから何らかの数を送れそう．
+
+*** アドバタイズの間隔と消費電力の関係
+    + [[https://qiita.com/ksksue@github/items/0811fd62bd970fa93337][BLE/iBeacon 消費電力ハック - Qiita]]
+    + [[http://d.hatena.ne.jp/shu223/20141210/1418171949][アップルによるBluetoothアクセサリの設計ガイドラインに書かれていたこと - Over&Out その後]]
+      本来の用途のビーコンとして使おうとすると，結構間隔を短かくしなければならないので，消費電力もそれなり．
+
+** Eddystone/Physical Web (Google)
+*** 導入や解説
+    + [[http://physicalweb.jp/][Physical Webとは？ | Physical Webの概要とiBeaconとの違い]]
+    + [[http://dev.classmethod.jp/smartphone/eddystone/][GoogleのEddystoneとはなんなのか ｜ Developers.IO]]
+      UID は，ドメイン名の SHA1 の先頭10バイトらしい?
+    + 製品例: [[http://direct.sanwa.co.jp/ItemPage/MM-BTPW1][Physical Web Beacon MM-BTPW1の販売商品 |通販ならサンワダイレクト]]
+    + [[http://kitak.hatenablog.jp/entry/2016/03/05/233832][Android ChromeでPhysical Webを試した - kitak.blog]]
+    + [[https://developers.googleblog.com/2015/07/lighting-way-with-ble-beacons.html][Google Developers Blog: Lighting the way with BLE beacons]]
+    + [[http://google.github.io/physical-web/][The Physical Web Top]]
+    + [[http://google.github.io/physical-web/get-started#bluetooth-low-energy-ble-beacons][The Physical Web (bluetooth-low-energy-ble-beacons)]]
+
+*** フォーマット
+    + [[https://developers.google.com/beacons/eddystone#full_support_for_eddystone][Eddystone format]]
+    + [[https://github.com/google/eddystone/blob/master/protocol-specification.md][eddystone/protocol-specification.md at master · google/eddystone]]
+    + [[http://dev.classmethod.jp/smartphone/eddystone/][GoogleのEddystoneとはなんなのか ｜ Developers.IO]]
+    + Eddy Stone の URL タイプのフォーマット:
+      : AAFE {SIZE} AAFE
+      この後にFrametype=10, TXPower=C0, URLscheme=0x03(https://) + 残り17バイト(ASCII)が入れられる．
+      例えば， https://quickhack.net/es をビーコンで飛ばそうとすると:
+      : "quickhack.net/es".each_byte.map{|b| "%X" % b}.join => 7569636b6861636b2e6e65742F6573
+      なので，
+      : AAFE 11 AAFE 10C003 71 7569636b6861636b2e6e65742F6573
+      となる．
+
+*** RN4020 で Eddystone を実装しようとすると，
+    [[https://electronza.com/rn4020-eddystone-beacon-tutorial/3/][RN4020: Eddystone beacon tutorial - Page 3 of 3 - Electronza]] NZ コマンドは firmware 1.33 以降が必要．
+    + [[http://www.microchip.com/wwwproducts/en/RN4020][RN4020 - Bluetooth Module]] → Documentation → Software  [[http://microchipdeveloper.com/ble:rn4020-app-example-dfu-uart][RN4020 Device Firmware Update (UART) - Developer Help]]
+      → RTS/CTS の使える RS232C + Windows が必要
+    + [[http://microchipdeveloper.com/ble:rn4020-app-example-dfu-ota][RN4020 Device Firmware Update (OTA) - Developer Help]]
+      → iOS のツールは，古くて，1.33 に対応していない!
+    + [[http://www.microchip.com/forums/m978113.aspx][RN4020 Firmware Update to 1.33, using DFU-OTA. How to setup sender/receiver? | Microchip]]
+      + これでいけそう?
+
+** Android 用 Beacon デバッグ用 App
+  + [[https://play.google.com/store/apps/details?id=de.flurp.beaconscanner.app][iBeacon & Eddystone Scanner]]
+  + [[https://play.google.com/store/apps/details?id=com.google.android.apps.location.beacon.beacontools][Beacon Tools]] :: 
+    Proximity Beacon API で Beacon を登録するアプリ
+    解説: [[http://juggly.cn/archives/184531.html][Google，開発者向けのBLEビーコン管理アプリ「Beacon Tools」をリリース]]
+  + [[https://play.google.com/store/apps/details?id=com.uriio][Beacon Toy]] :: 
+    Google 推奨 App -  Android 端末で Eddystone/iBeacon のフリをさせるツール
+
+** コード例
+   + [[http://qiita.com/chibatching/items/0cb0eaad42607a4f5754][Google発のBeacon用オープンフォーマットEddystoneをAndroidで触ってみた - Qiita]]
+
+** Nearby Message API + Proximity Beacon API
+   + [[https://developers.google.com/nearby/messages/overview][Overview Nearby Messages API]]
+   + [[https://developers.google.com/beacons/proximity/guides][Overview Proximity Beacon API]]
+   + [[http://recruit.gmo.jp/engineer/jisedai/blog/eddystone/][Eddystone ビーコンへのデータ登録・取得方法の紹介]]
+   + [[http://qiita.com/chibatching/items/8435fd1a98a0b7d3da96][Nearby Messages APIとEddystoneを連携する - Qiita]]
+
+   おおざっぱな仕組みとしては，
+   1) Proximity Beacon API で Google に自分の Beacon の情報を登録しておく
+   2) Android が登録された Beacon に近づくと Nearby Messsage API 経由で  Beacon の情報を受け取る
+   3) Beacon の情報を Proximity Beacon API で取得して，詳細情報を得る
+   4) 詳細情報を popup する
+
+   この流れを使うことで，Beacon の持つ情報だけでなく，その Beacon に紐付けて
+   Google に登録した情報を取得できる．
+   情報提供側は，Beacon そのものを変更することなく，送りたいメッセージを
+   Proximity Beacon API で変更できる．
+
+* Raspberry PI や Mac で iBeacon のアドバタイズを受信する
+** Ruby による実装
+   1) [[https://github.com/sdalu/ruby-ble/blob/master/ble.gemspec][ruby-ble/ble.gemspec at master · sdalu/ruby-ble]]
+   2) [[https://github.com/RadiusNetworks/scanbeacon-gem][RadiusNetworks/scanbeacon-gem: A Ruby gem for scanning beacons]] ← これを選定
+      インストール:
+      : apt-get install bluez libbluetooth-dev ruby-dev
+      : gem install scan_beacon
+
+** Node.js による実装
+   1) [[http://qiita.com/yuyakato/items/a1225154445520dc2db3][Raspberry PiにnodebrewでNode.jsをインストールする - Qiita]]
+   2) [[http://qiita.com/yuyakato/items/739443960fac2668f4a3][Raspberry PiでiBeaconを受信する（Node.js + bleacon） - Qiita]]
+   3) [[http://wondergadget.hatenablog.com/entry/2014/12/23/121400][BLEのアドバタイズを受信する - wonder gadget]]
+
+* Android で Beacon を検知するアプリを作る (AltBeacon - Android Beacon Lib)
+  + http://altbeacon.org/
+  + http://altbeacon.github.io/android-beacon-library/index.html
+  + サンプル: [[https://github.com/AltBeacon/android-beacon-library-reference][AltBeacon/android-beacon-library-reference: A reference application for the Android Beacon Library]]
+
+  RegionBootStrap でバックグラウンド処理では，捉えた個々のBeaconを判別できないので，
+  http://altbeacon.github.io/android-beacon-library/samples.html にあるフォアグラウンドの手法を用いて
+  実装したほうがいいという話:  http://stackoverflow.com/questions/25768326/how-to-get-visible-beacons-from-the-regionbootstrap-altbeacon-method
+
+  MonitoringLisner + service で行く方法:
+  http://stackoverflow.com/questions/32632881/estimote-monitoring-mutiple-beacons-at-same-time-android
+
+  BootStrap で didEnterRegion を捉えてから，その中で
+  startRangingBeaconsInRegion して監視を開始．
+  RangeNotifier インタフェースの didRangeBeaconsInRegion で個々の Beacon の状態を管理する方法:
+  http://altbeacon.github.io/android-beacon-library/distance-triggering.html
+
+* RN4020 開発
+** 開発環境の整備
+   + これを買って: [[https://www.amazon.co.jp/dp/B01LXHQIF0][CP2102 USB UART TTL モジュール]]
+   + ドライバのインストール: [[http://jp.silabs.com/products/development-tools/software/usb-to-uart-bridge-vcp-drivers][VCP ドライバ Silicon Labs]]
+     ドライバ名は， =/dev/cu.SLAB_USBtoUART= になる
+
+** マニュアル，データシート
+  + [[http://www.microchip.com/wwwproducts/en/RN4020][RN4020 - Bluetooth Module]]
+
+  + [[http://ww1.microchip.com/downloads/en/DeviceDoc/50002279B.pdf][RN4020 Bluetooth Low Energy Module Data Sheet - 50002279B.pdf]]
+    COPY: [[file:doc/50002279B.pdf][Datasheet]]
+
+  + [[http://ww1.microchip.com/downloads/en/devicedoc/70005191b.pdf][RN4020 Bluetooth Low Energy Module User’s Guide - 70005191b.pdf]]
+    COPY: [[file:doc/70005191b.pdf][Users Guide]]
+
+  + [[http://www.microtechnica.tv/support/manual/clickble_man.pdf][Taro-CLICK-BLE - clickble_man.pdf]]
+
+** 参考になりそうな初期情報ページ
+   + [[http://illmaticindustries.com/?p=525][お手軽BLEモジュール RN4020の消費電力 | illmatic工業]]
+   + [[http://meuse.co.jp/%25E9%259B%25BB%25E5%25AD%2590%25E5%25B7%25A5%25E4%25BD%259C/ble%25E3%2583%25A2%25E3%2582%25B8%25E3%2583%25A5%25E3%2583%25BC%25E3%2583%25AB-rn4020%25E3%2582%2592%25E8%25A9%25A6%25E3%2581%2599/][BLEモジュール RN4020を試す | 電子工作 | Meuse Robotics]]
+
+** アプリケーションノート
+   + [[http://ww1.microchip.com/downloads/jp/AppNotes/00001861A_JP.pdf][Using RN4020 for Bluetooth Smart Communication.fm - 00001861A_JP.pdf]]
+   + [[http://www.microchip.com/wwwAppNotes/AppNotes.aspx?appnote=en573446][AN1906: Bluetooth Low Energy Digital Pedometer Demo Design]]
+
+** RN4020 疑問
+  + [[http://www.microchip.com/forums/m914058.aspx][RN4020 Maximum Analog Input Voltage | Microchip]]
+  + [[http://www.microchip.com/forums/m846328.aspx#846328][RN4020 Device Name | Microchip]]
+  + [[http://www.microchip.com/forums/m851785.aspx#851785][RN4020 identification by android app | Microchip]]
+
+** RN4020 省電力 Deep SLEEP 問題
+   + [[http://www.microchip.com/forums/m938292.aspx][RN4020 alone, without MCU, in Script Mode, Timer TMR1 not triggering in Deep Sleep mode | Microchip]]
+   + [[http://www.microchip.com/forums/m845882-p2.aspx][RN4020 - anomalies such as drawing more current than expected | Microchip]]
+
+   + [[http://microchip.wikidot.com/ble:rn4020-power-states][RN4020 Power States - Developer Help]]
+     + UART_RX をオープンにしておくと Deep sleep の消費電力が上がるので，
+       10kΩで pull-up しておくこと
+     + WAKE_SW は 内部 pull-down されていないので 10kΩで pull-down して
+       おくこと
+
+   + [[http://microchip.wikidot.com/ble:rn4020-mcu-interface][RN4020 MCU Interface - Developer Help]]
+     + WAKE_SW は，内部プルダウンされていないので，
+       10kΩで pull-down しておく必要がある．
+
+  + 結論 設定覚え書き:
+    + CMD/MLDP :: Lo (CMDモード) → 内部 pull-down なので解放でも OK
+    + UART_RX :: 10kΩで pull-up (解放だと Deep Sleep 時の消費電力が大きい)
+    + WAKE_HW :: Lo → 内部 pull-down なので解放でも OK
+    + WAKE_SW :: 購入した素の状態の場合， Hi (VCC) にしておく．
+                 SB,0 で RN4200 を 2400bps にしてリセットした後は，
+                 Lo (Deep Sleep) (10kΩで pull-down)．
+** Mac と自作 RN4020 ボードを接続して kermit からスクリプトを書込む
+   + brew install c-kermit
+   + TX と RX をクロスで PC につなぐ (3.3v)
+   + スイッチを PRG 側にする
+   + .kermrc で，以下の設定
+     #+BEGIN_EXAMPLE
+       ;; CP2102 Silicon Labs
+       set line /dev/cu.SLAB_USBtoUART
+
+       set carrier-watch off
+       ;; set speed 9600
+       set speed 115200
+       set parity none
+       set terminal bytesize 8
+       set terminal cr-display crlf
+       set flow-control none
+     #+END_EXAMPLE
+
+   + 接続して最初の操作は，以下のとおり:
+     最初は，115200bps なので，2400bps に変更して，RN4020 をリブート．
+     #+BEGIN_EXAMPLE
+       +      // Echo on
+       SF,1   // Factory reset
+       SB,0   // set terminal 0=2400bps 4=115200bps (default)
+       R,1    // Reboot
+     #+END_EXAMPLE
+     この後，kermit をコマンドモードに落として (Ctrl-\ c)
+     : set speed 2400
+     として再接続．
+
+   + スクリプトの書込み:
+     #+BEGIN_EXAMPLE
+       +     // Echo on
+       WC    // 既に書込まれちるスクリプトをクリア
+       WW    // スクリプト書込みモードに入る (ESCで終了)
+     #+END_EXAMPLE
+     ここで，例えば，[[file:rn4020_scripts/rn4020-read-digital-input.txt][rn4020-read-digital-input.txt]] をターミナルにコピペして，終わったら
+     ESC で抜ける．
+
+     #+BEGIN_EXAMPLE
+       LW // スクリプトをリスト表示で確認
+     #+END_EXAMPLE
+
+   + RN4020 ボードのスイッチを RUN 側にする
+
+   + 実行
+     #+BEGIN_EXAMPLE
+       SR,01000000 // Run script after power on
+       R,1         // Reboot
+     #+END_EXAMPLE
+     これで電源を切って，電池につなぎなおす．
+
+   + kermit からの実行と停止
+     + WR コマンドでスクリプト実行
+     + WP コマンドでスクリプト停止
+
+** スクリプト例の解説
+   + 5秒に1回，AI0 (アナログ入力) を読んで，1秒間アドバタイズする．
+     (AI0 は，0x0042-0x0532 ぐらいl 66mV - 1.33V ぐらいの値になる)
+     # ruby -e 'puts 0x4c4b40' => 5000000
+     #+BEGIN_EXAMPLE
+       # 電源投入時に以下を実行
+       @PW_ON
+
+       # タイマ1を即 (1us) 後に起動
+       SM,1,00000001
+
+       # タイマ1発火時に以下を実行
+       @TMR1
+
+       # アドバタイズを一旦止める
+       Y
+
+       # AI0 につながった，Cds (光) センサを読んで，$VAR1 に代入
+       $VAR1 = @I,0
+
+       # BLE パケットのアドバタイズパケットを作成
+       #
+       # iBeacon の場合は，以下の通りになる:
+       #  4C000215 (16bytes UUID) (2bytes Major) (2bytes Minor) (1byte Power)
+       #
+       # HEAD  = 4C000215 (Apple iBeacon では固定)
+       # UUID  = 467FD32695D242F2BBBC5C8F4610B120 (Beacon の個体毎に違う値にすること)
+       # MAJOR = 00 $VAR1 ($VAR1 は，実際の値(1-byte) に展開される)
+       # MINOR = 00 00
+       # POWER = C9 (自身の送信出力．この値と実際の受信強度から距離が推定できる)
+       #
+       N,4C000215467FD32695D242F2BBBC5C8F4610B120$VAR10000C9
+
+       # 100ms (0x0064) 間隔でアドバタイズパケットを 1000ms (0x03E8) の間送出し続ける
+       A,0064,03E8
+
+       # タイマ1を timer1 5,000,000us (0x004C4B40) つまり5秒後に発火させる
+       SM,1,004C4B40
+     #+END_EXAMPLE
+
+* 類似製品例
+  + [[http://japanese.engadget.com/2016/08/23/1000-iot-leafee-mag-makuake/][窓の閉め忘れをスマホからチェック。1000円台のIoTデバイス『leafee mag』、Makuakeに登場 - Engadget Japanese]]
+  + [[http://www.runele.com/ca1/23/][FRISKケースに入るBLE112基板 REBLE112FR - ランニングエレクトロニクス]]
+
+* 基板作成 - KiCadとPCB注文
+** KiCad 概要
+   [[http://kicad-pcb.org/][PCB CAD KiCad]]
+   + KiCad のヘルプから，チュートリアルが読める
+     [[http://kicad-pcb.org/help/documentation/][Documentation | KiCad EDA]]
+   + [[http://kicad.jp/][オープンソースの PCB CAD 日本ユーザコミュニティが優しい]]
+   + [[https://tech.nosuz.jp/2015/12/kicad-info/][KiCadの情報源メモ]] が役立つ
+   + [[http://www.slideshare.net/soburi/kicad-53622272][KiCadで雑に基板を作る チュートリアル]] slide
+
+   + [[https://github.com/nosuz/kicad-lib][nosuz/kicad-lib]]
+
+** 操作/ノウハウ
+   → [[https://tech.nosuz.jp/2015/09/kicad-footprints-on-github/][Githubに公開されているKiCadのフットプリントを使用する方法]]
+   操作メモ
+   + コンポーネント/テキストの移動 :: M
+   + コンポーネント位置ドラッグ(配線維持したまま) :: G
+   + 回転 :: R
+   + コピー :: C
+   + 配線 :: W
+   + 定数変更 :: V
+   + 部品追加 :: A
+
+** 秋月の基板サイズ
+   + C基板: 72x47.5mm
+   + D基板: 47.5x36mm
+
+** 標準的なデザインルール
+   + 最小配線幅 0.2mm
+   + 最小ビア径 0.8mm
+   + 最小ビアドリル 0.4mm
+   + クリアランス最小 0.1542mm (10milぐらいまで好みで)
+
+** freeroute
+  + [[http://atmel.client.jp/kicad.html][kicad Mac 日本語化]]
+  + [[http://kerikeri.top/posts/2016-04-22-freerouting/][KiCadで自動配線 - KERI's Lab]]
+
+  + [[http://amichalec.net/2015/10/kicad-upgrade/][Kicad upgrade: push & shove and freerouting revisited | amichalec.net :: homepage]]
+    1) Download Freerouter from this mirror
+       https://github.com/freerouting/freerouting
+    2) Extract freerouting-master.zip/binaries/freerouting.jar
+    3) mv freerouting.jar /Applications/Kicad/pcbnew.app/Contents/MacOS/freeroute.jar
+
+** PCB 注文
+   + [[https://www.switch-science.com/pcborder/techguide/][技術ガイド - スイッチサイエンス]]
+   + [[https://www.seeedstudio.com/fusion_pcb.html][Fusion PCB/PCBA - Seeed Studio]]
+   + [[http://d.hatena.ne.jp/inajob/20160312][RakuChordの回路を発注してみた。 - INAの日記]]
+   + [[http://microcraft.blog.fc2.com/blog-entry-20.html][KiCadデザインルール設定 - 小さな工作室]]
+   + [[http://blog.livedoor.jp/jun_dime/archives/51842909.html][続・kicadを使ってfusion PCBへ発注してみた。 : だいむのblog]]
+   + [[http://support.seeedstudio.com/knowledgebase/articles/422482-fusion-pcb-order-submission-guidelines][Fusion PCB Order Submission Guidelines – Feedback &amp; Ideas for seeed]]
+   + [[http://clockworks01.blogspot.jp/2015/07/kicadfusion-pcb.html][KICADでガーバー出力し、Fusion PCB へ発注する手順]]
+   + [[https://forum.kicad.info/t/seeedstudio-fusion-rules/811][Seeedstudio fusion rules - Manufacturing - KiCad.info Forums]]
+
+* Linux の hcitool で BLE パケットの受信を確認する
+  : sudo hcitool lescan
+

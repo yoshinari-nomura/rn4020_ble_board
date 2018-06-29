@@ -23,6 +23,9 @@
 # #+LATEX_HEADER: \pagestyle{empty}
 # #+LaTeX: \thispagestyle{empty}
 
+[[file:images/rn4020_ble_board1s.jpg]]
+[[file:images/rn4020_ble_board2s.jpg]]
+
 * はじめに
   Microchip の RN4020 は，Bluetooth Low Energy 機器作成に必要な機能を1チップに収めた
   非常に使いやすいマイコン製品です．以下の特徴があります．

@@ -1,0 +1,366 @@
+EESchema Schematic File Version 2
+LIBS:rn4020_breakout-rescue
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:rn4020_plain
+LIBS:rn4020
+LIBS:w_vacuum
+LIBS:w_transistor
+LIBS:w_rtx
+LIBS:w_relay
+LIBS:w_opto
+LIBS:w_microcontrollers
+LIBS:w_memory
+LIBS:w_logic
+LIBS:w_device
+LIBS:w_connectors
+LIBS:w_analog
+LIBS:nosuz
+LIBS:rn4020_breakout-cache
+EELAYER 25 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title "RN4020 Breakout board"
+Date "2017-06-30"
+Rev "1"
+Comp "Yoshinari Nomura"
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Battery-RESCUE-rn4020_breakout BT1
+U 1 1 57E10051
+P 6450 4450
+F 0 "BT1" H 6550 4500 50  0000 L CNN
+F 1 "Battery" H 6550 4400 50  0000 L CNN
+F 2 "kicad_libs:BC-2001" V 6450 4490 50  0001 C CNN
+F 3 "" V 6450 4490 50  0000 C CNN
+	1    6450 4450
+	1    0    0    -1  
+$EndComp
+$Comp
+L VCC #PWR01
+U 1 1 57E1008C
+P 6450 4050
+F 0 "#PWR01" H 6450 3900 50  0001 C CNN
+F 1 "VCC" H 6450 4200 50  0000 C CNN
+F 2 "" H 6450 4050 50  0000 C CNN
+F 3 "" H 6450 4050 50  0000 C CNN
+	1    6450 4050
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR02
+U 1 1 57E100A6
+P 6450 4800
+F 0 "#PWR02" H 6450 4550 50  0001 C CNN
+F 1 "GND" H 6450 4650 50  0000 C CNN
+F 2 "" H 6450 4800 50  0000 C CNN
+F 3 "" H 6450 4800 50  0000 C CNN
+	1    6450 4800
+	1    0    0    -1  
+$EndComp
+$Comp
+L PWR_FLAG #FLG03
+U 1 1 57E100C0
+P 6800 4150
+F 0 "#FLG03" H 6800 4245 50  0001 C CNN
+F 1 "PWR_FLAG" H 6800 4400 50  0000 C CNN
+F 2 "" H 6800 4150 50  0000 C CNN
+F 3 "" H 6800 4150 50  0000 C CNN
+	1    6800 4150
+	1    0    0    -1  
+$EndComp
+$Comp
+L PWR_FLAG #FLG04
+U 1 1 57E102BF
+P 6800 4700
+F 0 "#FLG04" H 6800 4795 50  0001 C CNN
+F 1 "PWR_FLAG" H 6800 4950 50  0000 C CNN
+F 2 "" H 6800 4700 50  0000 C CNN
+F 3 "" H 6800 4700 50  0000 C CNN
+	1    6800 4700
+	-1   0    0    1   
+$EndComp
+$Comp
+L VCC #PWR05
+U 1 1 57E10332
+P 6000 2100
+F 0 "#PWR05" H 6000 1950 50  0001 C CNN
+F 1 "VCC" H 6000 2250 50  0000 C CNN
+F 2 "" H 6000 2100 50  0000 C CNN
+F 3 "" H 6000 2100 50  0000 C CNN
+	1    6000 2100
+	1    0    0    -1  
+$EndComp
+$Comp
+L RN4020 U1
+U 1 1 57E10432
+P 5000 3350
+F 0 "U1" H 5050 4350 60  0000 C CNN
+F 1 "RN4020" V 5050 3800 118 0000 C CNN
+F 2 "nosuz:RN4020" V 4900 3800 60  0001 C CNN
+F 3 "" H 4750 3100 60  0000 C CNN
+	1    5000 3350
+	1    0    0    -1  
+$EndComp
+$Comp
+L HEADER_8 J3
+U 1 1 57E1054D
+P 6350 2900
+F 0 "J3" H 6400 2450 60  0000 C CNN
+F 1 "HEADER_8" V 6550 2900 60  0000 C CNN
+F 2 "w_pin_strip:pin_socket_8" H 6350 2900 60  0001 C CNN
+F 3 "" H 6350 2900 60  0000 C CNN
+	1    6350 2900
+	1    0    0    1   
+$EndComp
+$Comp
+L HEADER_8 J1
+U 1 1 57E10586
+P 3700 2900
+F 0 "J1" H 3750 3350 60  0000 C CNN
+F 1 "HEADER_8" V 3900 2900 60  0000 C CNN
+F 2 "w_pin_strip:pin_socket_8" H 3700 2900 60  0001 C CNN
+F 3 "" H 3700 2900 60  0000 C CNN
+	1    3700 2900
+	-1   0    0    -1  
+$EndComp
+$Comp
+L HEADER_6 J2
+U 1 1 57E10629
+P 5000 4600
+F 0 "J2" V 5050 4950 60  0000 C CNN
+F 1 "HEADER_6" V 5200 4600 60  0000 C CNN
+F 2 "w_pin_strip:pin_socket_6" H 5000 4600 60  0001 C CNN
+F 3 "" H 5000 4600 60  0000 C CNN
+	1    5000 4600
+	0    -1   1    0   
+$EndComp
+$Comp
+L R R1
+U 1 1 57E1075D
+P 4000 2350
+F 0 "R1" V 4080 2350 50  0000 C CNN
+F 1 "10k" V 4000 2350 50  0000 C CNN
+F 2 "Resistors_ThroughHole:Resistor_Horizontal_RM10mm" V 3930 2350 50  0001 C CNN
+F 3 "" H 4000 2350 50  0000 C CNN
+	1    4000 2350
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R2
+U 1 1 57E107A5
+P 4000 3600
+F 0 "R2" V 4080 3600 50  0000 C CNN
+F 1 "10k" V 4000 3600 50  0000 C CNN
+F 2 "Resistors_ThroughHole:Resistor_Horizontal_RM10mm" V 3930 3600 50  0001 C CNN
+F 3 "" H 4000 3600 50  0000 C CNN
+	1    4000 3600
+	1    0    0    -1  
+$EndComp
+$Comp
+L SW_SPDT SW1
+U 1 1 57E109D2
+P 3850 3950
+F 0 "SW1" H 3800 4100 50  0000 C CNN
+F 1 "SW_SPDT" V 4150 3950 50  0000 C CNN
+F 2 "kicad_libs:SW_Micro_SPDT" H 3850 3950 60  0001 C CNN
+F 3 "" H 3850 3950 60  0000 C CNN
+	1    3850 3950
+	-1   0    0    -1  
+$EndComp
+$Comp
+L GND #PWR06
+U 1 1 57E10A9F
+P 3700 4200
+F 0 "#PWR06" H 3700 3950 50  0001 C CNN
+F 1 "GND" H 3700 4050 50  0000 C CNN
+F 2 "" H 3700 4200 50  0000 C CNN
+F 3 "" H 3700 4200 50  0000 C CNN
+	1    3700 4200
+	1    0    0    -1  
+$EndComp
+$Comp
+L VCC #PWR07
+U 1 1 57E10B2C
+P 4000 2100
+F 0 "#PWR07" H 4000 1950 50  0001 C CNN
+F 1 "VCC" H 4000 2250 50  0000 C CNN
+F 2 "" H 4000 2100 50  0000 C CNN
+F 3 "" H 4000 2100 50  0000 C CNN
+	1    4000 2100
+	1    0    0    -1  
+$EndComp
+$Comp
+L VCC #PWR08
+U 1 1 57E10BB0
+P 3700 3750
+F 0 "#PWR08" H 3700 3600 50  0001 C CNN
+F 1 "VCC" H 3700 3900 50  0000 C CNN
+F 2 "" H 3700 3750 50  0000 C CNN
+F 3 "" H 3700 3750 50  0000 C CNN
+	1    3700 3750
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR09
+U 1 1 57E11443
+P 5550 4500
+F 0 "#PWR09" H 5550 4250 50  0001 C CNN
+F 1 "GND" H 5550 4350 50  0000 C CNN
+F 2 "" H 5550 4500 50  0000 C CNN
+F 3 "" H 5550 4500 50  0000 C CNN
+	1    5550 4500
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR010
+U 1 1 57E11466
+P 4450 4500
+F 0 "#PWR010" H 4450 4250 50  0001 C CNN
+F 1 "GND" H 4450 4350 50  0000 C CNN
+F 2 "" H 4450 4500 50  0000 C CNN
+F 3 "" H 4450 4500 50  0000 C CNN
+	1    4450 4500
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR011
+U 1 1 57E11523
+P 5900 3400
+F 0 "#PWR011" H 5900 3150 50  0001 C CNN
+F 1 "GND" H 5900 3250 50  0000 C CNN
+F 2 "" H 5900 3400 50  0000 C CNN
+F 3 "" H 5900 3400 50  0000 C CNN
+	1    5900 3400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6450 4050 6450 4300
+Wire Wire Line
+	6450 4600 6450 4800
+Wire Wire Line
+	6800 4700 6450 4700
+Connection ~ 6450 4700
+Wire Wire Line
+	6800 4150 6450 4150
+Connection ~ 6450 4150
+Wire Wire Line
+	4000 2500 4000 3050
+Wire Wire Line
+	3800 3050 4200 3050
+Wire Wire Line
+	4000 2100 4000 2200
+Wire Wire Line
+	3700 3750 3700 3900
+Wire Wire Line
+	3800 3150 4200 3150
+Wire Wire Line
+	5850 2550 6250 2550
+Wire Wire Line
+	5850 2650 6250 2650
+Wire Wire Line
+	5850 2750 6250 2750
+Wire Wire Line
+	5850 2850 6250 2850
+Wire Wire Line
+	5850 2950 6250 2950
+Wire Wire Line
+	5850 3050 6250 3050
+Wire Wire Line
+	5850 3150 6250 3150
+Wire Wire Line
+	5850 3250 6250 3250
+Wire Wire Line
+	3800 2550 4200 2550
+Wire Wire Line
+	3800 2650 4200 2650
+Wire Wire Line
+	3800 2750 4200 2750
+Wire Wire Line
+	3800 2850 4200 2850
+Wire Wire Line
+	3800 2950 4200 2950
+Wire Wire Line
+	3800 3250 4200 3250
+Wire Wire Line
+	4750 4400 4750 4500
+Wire Wire Line
+	4850 4400 4850 4500
+Wire Wire Line
+	4950 4400 4950 4500
+Wire Wire Line
+	5050 4400 5050 4500
+Wire Wire Line
+	5150 4400 5150 4500
+Wire Wire Line
+	5250 4400 5250 4500
+Connection ~ 4000 3050
+Wire Wire Line
+	6000 2100 6000 2650
+Connection ~ 6000 2650
+Wire Wire Line
+	4650 4400 4450 4400
+Wire Wire Line
+	4450 4400 4450 4500
+Wire Wire Line
+	5900 2550 5900 3400
+Connection ~ 5900 2550
+Wire Wire Line
+	5350 4400 5550 4400
+Wire Wire Line
+	5550 4400 5550 4500
+Wire Wire Line
+	4000 3750 4000 3950
+Wire Wire Line
+	3700 4000 3700 4200
+Wire Wire Line
+	4000 3450 4000 3150
+Connection ~ 4000 3150
+$Comp
+L GND #PWR012
+U 1 1 57E121C5
+P 4150 4200
+F 0 "#PWR012" H 4150 3950 50  0001 C CNN
+F 1 "GND" H 4150 4050 50  0000 C CNN
+F 2 "" H 4150 4200 50  0000 C CNN
+F 3 "" H 4150 4200 50  0000 C CNN
+	1    4150 4200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4150 4200 4150 2550
+Connection ~ 4150 2550
+$EndSCHEMATC

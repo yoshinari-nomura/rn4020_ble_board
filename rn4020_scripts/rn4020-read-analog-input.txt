@@ -1,0 +1,19 @@
+@PW_ON
+# Trigger timer1 event immediately
+SM,1,00000001
+
+@TMR1
+# Stop advertisement for sure
+Y
+
+# Read analog-input0 (pin4)
+$VAR1 = @I,0
+
+# Set BLE packet payload. See rn4020-read-digital-input.txt
+N,4C000215467FD32695D242F2BBBC5C8F4610B120$VAR10000C9
+
+# Start advertisement with interval 100ms (0064) for 1s (03E8)
+A,0064,03E8
+
+# Restart timer1 5s (004C4B40)
+SM,1,004C4B40

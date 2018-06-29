@@ -1,0 +1,41 @@
+#+TITLE: RN4020 を使った iBeacon 作成
+#+AUTHOR: 乃村 能成
+#+EMAIL:
+#+DATE: 2017-06-30
+#+OPTIONS: H:3 num:2 toc:nil
+#+OPTIONS: ^:nil @:t \n:nil ::t |:t f:t TeX:t
+#+OPTIONS: skip:nil
+#+OPTIONS: author:t
+#+OPTIONS: email:nil
+#+OPTIONS: creator:nil
+#+OPTIONS: timestamp:nil
+#+OPTIONS: timestamps:nil
+#+OPTIONS: d:nil
+#+OPTIONS: tags:t
+#+TEXT:
+#+DESCRIPTION:
+#+KEYWORDS:
+#+LANGUAGE: ja
+#+LATEX_CLASS: jsarticle
+#+LATEX_CLASS_OPTIONS: [a4j,dvipdfmx]
+# #+LATEX_HEADER: \usepackage{plain-article}
+# #+LATEX_HEADER: \renewcommand\maketitle{}
+# #+LATEX_HEADER: \pagestyle{empty}
+# #+LaTeX: \thispagestyle{empty}
+
+* はじめに
+  Microchip の RN4020 は，Bluetooth Low Energy 機器作成に必要な機能を1チップに収めた
+  非常に使いやすいマイコン製品です．以下の特徴があります．
+
+  + 消費電力非常に小さい
+  + 簡易的ながら柔軟なユーザスクリプトを記述できる
+  + 特別な開発環境(コンパイラ)の整備が不要
+
+* ディレクトリ構成
+  + file:TECHNICAL-MEMO.org :: 作成時に気付いたことなどのメモやノウハウ
+  + file:README.org :: このファイル
+  + file:datasheet/ :: RN4020 のデータシート
+  + file:images/ :: 回路図(PDF)，CADの3Dイメージ，設置例写真など
+  + file:kicad/ :: 回路図，基板作成CADのデータ
+    + file:garber/ :: PCB注文時のzipファイルと作成用シェルスクリプトなど
+  + file:rn4020_scripts/ :: RN4020に書込むユーザスクリプト例

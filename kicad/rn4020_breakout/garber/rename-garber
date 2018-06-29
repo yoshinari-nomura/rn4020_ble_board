@@ -1,0 +1,61 @@
+#!/bin/sh
+
+# rn4020_breakout-F.Cu.gtl
+# rn4020_breakout-B.Cu.gbl
+#
+# rn4020_breakout-F.Mask.gts
+# rn4020_breakout-B.Mask.gbs
+#
+# rn4020_breakout-F.SilkS.gto
+# rn4020_breakout-B.SilkS.gbo
+#
+# rn4020_breakout.drl → .txt
+# rn4020_breakout-Edge.Cuts.gm1 → .gml
+
+function convert_name() {
+  local file_name="$1"
+
+  case "$file_name" in
+    *.gtl)
+      echo "$file_name" | sed 's/-F\.Cu//'
+      ;;
+    *.gbl)
+      echo "$file_name" | sed 's/-B\.Cu//'
+      ;;
+    *.gts)
+      echo "$file_name" | sed 's/-F.Mask//'
+      ;;
+    *.gbs)
+      echo "$file_name" | sed 's/-B.Mask//'
+      ;;
+    *.gto)
+      echo "$file_name" | sed 's/-F.SilkS//'
+      ;;
+    *.gbo)
+      echo "$file_name" | sed 's/-B.SilkS//'
+      ;;
+    *.drl)
+      echo "$file_name" | sed 's/.drl$/.txt/'
+      ;;
+    *.gm1)
+      echo "$file_name" | sed 's/-Edge.Cuts.gm1$/.gml/'
+      ;;
+    *)
+      ;;
+    esac
+}
+
+base_name=$(convert_name *.gbl | sed 's/.gbl$//')
+zip_dir="$base_name"-fusionpcb
+
+mkdir "$zip_dir"
+
+for file in $*
+do
+  new_name=$(convert_name "$file")
+  if [ -n "$new_name" ]; then
+    cp -pi "$file" "$zip_dir/$new_name"
+  fi
+done
+
+zip -r "$zip_dir".zip "$zip_dir"

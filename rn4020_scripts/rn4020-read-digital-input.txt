@@ -1,0 +1,28 @@
+@PW_ON
+# Trigger timer1 event immediately
+SM,1,00000001
+
+@TMR1
+# Stop advertisement for sure
+Y
+
+# Read digital-input PIO7 (pin19) CF. user guide P.34
+$VAR1 = |I,08
+
+# Set BLE packet payload. Format is:
+#
+#  4C000215 (16bytes UUID) (2bytes Major) (2bytes Minor) (1byte Power)
+#
+# HEAD  = 4C000215 (This is Apple iBeacon)
+# UUID  = 467FD32695D242F2BBBC5C8F4610B120 (should be changed for each beacon)
+# MAJOR = 00 $VAR1 ($VA$1 is replaced by 1-byte value)
+# MINOR = 00 00
+# POWER = C9 (TX-power of the beacon. C9 would be fake but works.)
+#
+N,4C000215467FD32695D242F2BBBC5C8F4610B12000$VAR10000C9
+
+# Start advertisement with interval 100ms (0064) for 1s (03E8)
+A,0064,03E8
+
+# Restart timer1 5s (004C4B40)
+SM,1,004C4B40

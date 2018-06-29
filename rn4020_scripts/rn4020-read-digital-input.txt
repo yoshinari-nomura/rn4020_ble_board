@@ -15,7 +15,7 @@ $VAR1 = |I,08
 #
 # HEAD  = 4C000215 (This is Apple iBeacon)
 # UUID  = 467FD32695D242F2BBBC5C8F4610B120 (should be changed for each beacon)
-# MAJOR = 00 $VAR1 ($VA$1 is replaced by 1-byte value)
+# MAJOR = 00 $VAR1 ($VAR1 is replaced by 1-byte value)
 # MINOR = 00 00
 # POWER = C9 (TX-power of the beacon. C9 would be fake but works.)
 #
